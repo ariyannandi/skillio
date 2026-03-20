@@ -48,7 +48,19 @@
 </div>
 
 {#if data.flashcards.length === 0}
-	<p class="text-sm text-gray-400">No flashcards yet — generate some with AI!</p>
+	<div class="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+		<p class="mb-3 text-3xl">🃏</p>
+		<p class="font-medium text-gray-700">No flashcards yet</p>
+		<p class="mt-1 mb-4 text-sm text-gray-400">Generate your first set with AI to get started</p>
+		<form method="POST" action="?/generate" use:enhance>
+			<button
+				type="submit"
+				class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+			>
+				Generate with AI
+			</button>
+		</form>
+	</div>
 {:else}
 	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 		{#each data.flashcards as card (card.id)}

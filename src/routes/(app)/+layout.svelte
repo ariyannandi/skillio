@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../layout.css';
-	import { navigating } from '$app/stores';
+	import { navigating, page } from '$app/stores';
 	import { enhance } from '$app/forms';
 	import type { LayoutProps } from './$types';
 	let { data, children }: LayoutProps = $props();
@@ -13,6 +13,11 @@
 
 	function closeDropdown() {
 		dropdownOpen = false;
+	}
+
+	function isActive(path: string) {
+		if (path === '/') return $page.url.pathname === '/';
+		return $page.url.pathname.startsWith(path);
 	}
 </script>
 
@@ -39,12 +44,17 @@
 	<nav class="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
 		<a href="/" class="text-lg font-semibold text-indigo-600">Skillio</a>
 		<div class="flex items-center gap-6 text-sm">
-			<a href="/" class="text-gray-600 hover:text-gray-900">Dashboard</a>
-			<a href="/skills" class="text-gray-600 hover:text-gray-900">Skills</a>
-			<a href="/quiz" class="text-gray-600 hover:text-gray-900">Quiz</a>
-			<a href="/review" class="text-gray-600 hover:text-gray-900">Review</a>
+			{#each [{ href: '/', label: 'Dashboard' }, { href: '/skills', label: 'Skills' }, { href: '/quiz', label: 'Quiz' }, { href: '/review', label: 'Review' }] as link}
+				<a
+					href={link.href}
+					class="transition-colors {isActive(link.href)
+						? 'font-medium text-indigo-600'
+						: 'text-gray-600 hover:text-gray-900'}"
+				>
+					{link.label}
+				</a>
+			{/each}
 
-			<!-- Avatar dropdown -->
 			<div class="relative" id="avatar-menu">
 				<button
 					onclick={toggleDropdown}
@@ -64,7 +74,8 @@
 						<a
 							href="/profile"
 							onclick={closeDropdown}
-							class="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+							class="flex w-full items-center gap-2 px-4 py-2.5 text-sm transition-colors
+								{isActive('/profile') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50'}"
 						>
 							Profile
 						</a>

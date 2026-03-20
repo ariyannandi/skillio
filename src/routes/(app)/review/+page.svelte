@@ -38,12 +38,21 @@
 
 {#if done || queue.length === 0}
 	<div class="py-20 text-center">
-		<p class="mb-4 text-4xl">🎉</p>
-		<h2 class="text-xl font-semibold text-gray-900">All done for today!</h2>
-		<p class="mt-2 text-gray-500">Come back tomorrow for your next review session.</p>
-		<a href="/skills" class="mt-6 inline-block text-sm text-indigo-600 hover:underline">
-			Browse skills →
-		</a>
+		{#if data.queue.length === 0}
+			<p class="mb-4 text-4xl">📚</p>
+			<h2 class="text-xl font-semibold text-gray-900">Nothing to review</h2>
+			<p class="mt-2 text-gray-500">Enrol in a skill and generate some flashcards first.</p>
+			<a href="/skills" class="mt-6 inline-block text-sm text-indigo-600 hover:underline"
+				>Browse skills →</a
+			>
+		{:else}
+			<p class="mb-4 text-4xl">🎉</p>
+			<h2 class="text-xl font-semibold text-gray-900">All done for today!</h2>
+			<p class="mt-2 text-gray-500">Come back tomorrow for your next review session.</p>
+			<a href="/skills" class="mt-6 inline-block text-sm text-indigo-600 hover:underline"
+				>Browse skills →</a
+			>
+		{/if}
 	</div>
 {:else if current}
 	<div class="mx-auto max-w-xl">
