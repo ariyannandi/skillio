@@ -1,0 +1,77 @@
+<script lang="ts">
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
+
+	const hour = new Date().getHours();
+	const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+</script>
+
+<div class="mb-8">
+	<h1 class="text-2xl font-semibold text-gray-900">
+		{greeting}, {data.user.name} 👋
+	</h1>
+	<p class="mt-1 text-gray-500">Here's your learning summary.</p>
+</div>
+
+<div class="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+	<div class="rounded-xl border border-gray-200 bg-white p-5">
+		<p class="text-sm text-gray-500">Skills enrolled</p>
+		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.enrolledCount}</p>
+	</div>
+	<div class="rounded-xl border border-gray-200 bg-white p-5">
+		<p class="text-sm text-gray-500">Reviewed today</p>
+		<p class="mt-1 text-3xl font-semibold text-indigo-600">{data.stats.reviewedToday}</p>
+	</div>
+	<div class="rounded-xl border border-gray-200 bg-white p-5">
+		<p class="text-sm text-gray-500">Total reviews</p>
+		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.totalReviewed}</p>
+	</div>
+	<div class="rounded-xl border border-gray-200 bg-white p-5">
+		<p class="text-sm text-gray-500">Due now</p>
+		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.dueNow}</p>
+	</div>
+</div>
+
+{#if data.stats.dueNow > 0}
+	<div
+		class="mb-8 flex items-center justify-between rounded-xl border border-indigo-100 bg-indigo-50 p-6"
+	>
+		<div>
+			<h2 class="font-semibold text-indigo-900">You have {data.stats.dueNow} cards due</h2>
+			<p class="mt-1 text-sm text-indigo-600">Keep your streak going — review now!</p>
+		</div>
+		<a
+			href="/review"
+			class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+			>Start review</a
+		>
+	</div>
+{:else}
+	<div class="mb-8 rounded-xl border border-green-100 bg-green-50 p-6">
+		<h2 class="font-semibold text-green-900">All caught up!</h2>
+		<p class="mt-1 text-sm text-green-600">No cards due right now. Check back later.</p>
+	</div>
+{/if}
+
+{#if data.recentSkills.length > 0}
+	<div>
+		<h2 class="mb-4 text-lg font-semibold text-gray-800">Your skills</h2>
+		<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+			{#each data.recentSkills as us}
+				<a
+					href="/skills/{us.skillId}"
+					class="rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:border-indigo-300"
+				>
+					<p class="mb-1 text-xs font-medium text-indigo-500">{us.skill.category}</p>
+					<p class="font-semibold text-gray-900">{us.skill.name}</p>
+					<p class="mt-1 text-sm text-gray-400">{us.xp} XP</p>
+				</a>
+			{/each}
+		</div>
+	</div>
+{:else}
+	<div class="py-12 text-center">
+		<p class="mb-4 text-gray-400">You haven't enrolled in any skills yet.</p>
+		<a href="/skills" class="text-sm text-indigo-600 hover:underline">Browse skills →</a>
+	</div>
+{/if}
