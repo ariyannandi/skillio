@@ -5,7 +5,7 @@ import { redirect, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) redirect(302, '/demo/better-auth');
+	if (!locals.user) redirect(302, '/auth');
 
 	const allSkills = await db.select().from(skills);
 
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	enrol: async ({ request, locals }) => {
-		if (!locals.user) redirect(302, '/demo/better-auth');
+		if (!locals.user) redirect(302, '/auth');
 
 		const data = await request.formData();
 		const skillId = data.get('skillId') as string;

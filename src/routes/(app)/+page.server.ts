@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) redirect(302, '/demo/better-auth');
+	if (!locals.user) redirect(302, '/auth');
 
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);

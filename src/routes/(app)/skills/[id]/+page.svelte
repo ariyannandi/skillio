@@ -13,15 +13,24 @@
 
 <div class="mb-8 flex items-center justify-between">
 	<div>
-		<a href={resolve('/skills')} class="text-sm text-indigo-600 hover:underline">← Back to skills</a>
+		<a href={resolve('/skills')} class="text-sm text-indigo-600 hover:underline">← Back to skills</a
+		>
 		<h1 class="mt-1 text-2xl font-semibold text-gray-900">{data.skill.name}</h1>
 		<p class="mt-1 text-gray-500">{data.skill.description ?? ''}</p>
 	</div>
-	{#if data.enrolled}
-		<span class="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-600">
-			✓ Enrolled
-		</span>
-	{/if}
+	<div class="flex items-center gap-3">
+		{#if data.enrolled}
+			<a
+				href="/quiz/{data.skill.id}"
+				class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+			>
+				Start quiz
+			</a>
+			<span class="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-600">
+				✓ Enrolled
+			</span>
+		{/if}
+	</div>
 </div>
 
 <div class="mb-4 flex items-center justify-between">

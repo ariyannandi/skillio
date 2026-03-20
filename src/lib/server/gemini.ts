@@ -9,44 +9,53 @@ function getText(text: string | undefined, label: string): string {
 	return text;
 }
 
-export async function generateQuiz(
-	skill: string,
-	topic: string
-): Promise<{
+export type QuizQuestion = {
 	question: string;
 	options: string[];
-	answerIndex: number;
+	answerIndices: number[];
 	explanation: string;
-}> {
+	multiSelect: boolean;
+};
+
+export async function generateQuizBatch(
+	skill: string,
+	topic: string,
+	count = 5
+): Promise<QuizQuestion[]> {
 	const result = await ai.models.generateContent({
 		model: MODEL,
 		contents: `You are a quiz generator for people learning ${skill}.
-Generate a multiple choice question about: ${topic}
+Generate ${count} varied quiz questions about: ${topic}
 
-Respond with ONLY valid JSON in this exact shape:
-{
-  "question": "the question text",
-  "options": ["option A", "option B", "option C", "option D"],
-  "answerIndex": 0,
-  "explanation": "why this answer is correct"
-}
+Some questions should have ONE correct answer, others should have MULTIPLE correct answers.
+Mix it up — vary the difficulty and question style.
 
-No markdown, no code fences, just raw JSON.`
+Respond with ONLY valid JSON — an array of exactly ${count} objects:
+[
+  {
+    "question": "the question text",
+    "options": ["option A", "option B", "option C", "option D"],
+    "answerIndices": [0],
+    "explanation": "why these answers are correct",
+    "multiSelect": false
+  }
+]
+
+Rules:
+- answerIndices is an array of correct answer positions (0-based)
+- multiSelect is true if there are 2+ correct answers, false otherwise
+- For multiSelect questions, always have exactly 2 correct answers
+- No markdown, no code fences, just raw JSON array.`
 	});
 
-	return JSON.parse(getText(result.text, 'generateQuiz'));
+	return JSON.parse(getText(result.text, 'generateQuizBatch'));
 }
 
 export async function generateFlashcards(
 	skill: string,
 	topic: string,
 	count = 5
-): Promise<
-	{
-		front: string;
-		back: string;
-	}[]
-> {
+): Promise<{ front: string; back: string }[]> {
 	const result = await ai.models.generateContent({
 		model: MODEL,
 		contents: `You are a flashcard generator for people learning ${skill}.

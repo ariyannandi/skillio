@@ -6,7 +6,7 @@ import { generateFlashcards } from '$lib/server/gemini';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-	if (!locals.user) redirect(302, '/demo/better-auth');
+	if (!locals.user) redirect(302, '/auth');
 
 	const skill = await db.query.skills.findFirst({
 		where: eq(skills.id, params.id)
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 export const actions: Actions = {
 	generate: async ({ params, locals }) => {
-		if (!locals.user) redirect(302, '/demo/better-auth');
+		if (!locals.user) redirect(302, '/auth');
 
 		const skill = await db.query.skills.findFirst({
 			where: eq(skills.id, params.id)
