@@ -41,13 +41,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 		limit: 3
 	});
 
+	const streakData = await db
+		.select({ streak: userSkills.streak, skillId: userSkills.skillId })
+		.from(userSkills)
+		.where(eq(userSkills.userId, locals.user.id));
+
+	const bestStreak = streakData.reduce((max, s) => Math.max(max, s.streak), 0);
+
 	return {
 		user: locals.user,
 		stats: {
 			enrolledCount: Number(enrolled[0].count),
 			reviewedToday: Number(reviewedToday[0].count),
 			totalReviewed: Number(totalReviewed[0].count),
-			dueNow: Number(dueCards[0].count)
+			dueNow: Number(dueCards[0].count),
+			bestStreak
 		},
 		recentSkills
 	};

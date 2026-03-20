@@ -21,6 +21,14 @@
 		xpToast = xp;
 		setTimeout(() => (xpToast = null), 1500);
 	}
+
+	let streakToast = $state<number | null>(null);
+
+	function showStreak(streak: number) {
+		if (streak < 2) return; // only show if streak is building
+		streakToast = streak;
+		setTimeout(() => (streakToast = null), 2000);
+	}
 </script>
 
 <div class="mb-8">
@@ -53,6 +61,16 @@
 			</div>
 		{/if}
 
+		{#if streakToast}
+			<div class="mb-2 text-center">
+				<span
+					class="inline-block rounded-full bg-amber-500 px-4 py-1 text-sm font-semibold text-white"
+				>
+					🔥 {streakToast} day streak!
+				</span>
+			</div>
+		{/if}
+
 		<div
 			class="flex min-h-48 cursor-pointer flex-col justify-center rounded-2xl border border-gray-200 bg-white p-8 transition-colors hover:border-indigo-300"
 			onclick={() => (flipped = true)}
@@ -80,8 +98,9 @@
 							action="?/review"
 							use:enhance={() => {
 								return async ({ result, update }) => {
-									if (result.type === 'success' && result.data?.xpGained) {
-										showXp(result.data.xpGained as number);
+									if (result.type === 'success') {
+										if (result.data?.xpGained) showXp(result.data.xpGained as number);
+										if (result.data?.newStreak) showStreak(result.data.newStreak as number);
 									}
 									await update();
 									next();

@@ -3,6 +3,7 @@ import { flashcards, reviewLog, userSkills } from '$lib/server/db/schema';
 import { eq, and, lte, sql } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { updateStreak } from '$lib/server/streak';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, '/auth');
@@ -117,6 +118,17 @@ export const actions: Actions = {
 			}
 		}
 
-		return { success: true, xpGained };
+		if (card) {
+			await db
+				.update(userSkills)
+				.set({ xp: sql`${userSkills.xp} + ${xpGained}` })
+				.where(and(eq(userSkills.userId, locals.user.id), eq(userSkills.skillId, card.skillId)));
+
+			// update streak after XP
+			const newStreak = await updateStreak(locals.user.id, card.skillId);
+			return { success: true, xpGained, newStreak };
+		}
+
+		return { success: true, xpGained, newStreak: 0 };
 	}
 };
