@@ -9,7 +9,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const now = new Date();
 
-	// cards that have been reviewed before and are due
 	const dueReviewed = await db
 		.select({
 			id: flashcards.id,
@@ -23,7 +22,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.innerJoin(flashcards, eq(reviewLog.flashcardId, flashcards.id))
 		.where(and(eq(reviewLog.userId, locals.user.id), lte(reviewLog.nextReviewAt, now)));
 
-	// cards that have never been reviewed, from enrolled skills
 	const enrolled = await db
 		.select({ skillId: userSkills.skillId })
 		.from(userSkills)
@@ -62,7 +60,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	const queue = [...dueReviewed, ...newCards];
-
 	return { queue };
 };
 
@@ -72,18 +69,17 @@ export const actions: Actions = {
 
 		const data = await request.formData();
 		const flashcardId = data.get('flashcardId') as string;
-		const rating = parseInt(data.get('rating') as string); // 1-4
+		const rating = parseInt(data.get('rating') as string);
 		const ease = parseFloat(data.get('ease') as string);
 		const interval = parseInt(data.get('interval') as string);
 
 		if (!flashcardId || isNaN(rating)) return fail(400, { message: 'Invalid data' });
 
-		// SM-2 algorithm
 		const newEase = Math.max(1.3, ease + 0.1 - (4 - rating) * (0.08 + (4 - rating) * 0.02));
 		let newInterval: number;
 
 		if (rating < 2) {
-			newInterval = 1; // forgot — reset to 1 day
+			newInterval = 1;
 		} else if (interval <= 1) {
 			newInterval = 1;
 		} else if (interval === 1) {
@@ -105,6 +101,22 @@ export const actions: Actions = {
 			reviewedAt: new Date()
 		});
 
-		return { success: true };
+		const xpMap: Record<number, number> = { 1: 0, 2: 5, 3: 10, 4: 15 };
+		const xpGained = xpMap[rating] ?? 0;
+
+		if (xpGained > 0) {
+			const card = await db.query.flashcards.findFirst({
+				where: eq(flashcards.id, flashcardId)
+			});
+
+			if (card) {
+				await db
+					.update(userSkills)
+					.set({ xp: sql`${userSkills.xp} + ${xpGained}` })
+					.where(and(eq(userSkills.userId, locals.user.id), eq(userSkills.skillId, card.skillId)));
+			}
+		}
+
+		return { success: true, xpGained };
 	}
 };
