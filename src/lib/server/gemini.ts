@@ -82,3 +82,42 @@ Use simple language and a practical example if possible.`
 
 	return getText(result.text, 'explainConcept');
 }
+
+export async function streamExplanation(
+	skill: string,
+	question: string,
+	history: { role: 'user' | 'model'; text: string }[]
+): Promise<ReadableStream<Uint8Array>> {
+	const contents = [
+		...history.map((h) => ({
+			role: h.role,
+			parts: [{ text: h.text }]
+		})),
+		{
+			role: 'user' as const,
+			parts: [{ text: question }]
+		}
+	];
+
+	const response = await ai.models.generateContentStream({
+		model: MODEL,
+		config: {
+			systemInstruction: `You are a friendly and knowledgeable tutor helping someone learn ${skill}. 
+Keep explanations clear and concise. Use examples where helpful. 
+If asked something unrelated to ${skill}, gently redirect to the topic.`
+		},
+		contents
+	});
+
+	const encoder = new TextEncoder();
+
+	return new ReadableStream({
+		async start(controller) {
+			for await (const chunk of response) {
+				const text = chunk.text;
+				if (text) controller.enqueue(encoder.encode(text));
+			}
+			controller.close();
+		}
+	});
+}
