@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
+	import StatCard from '$lib/components/StatCard.svelte';
 
 	const hour = new Date().getHours();
 	const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -14,22 +15,10 @@
 </div>
 
 <div class="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-	<div class="rounded-xl border border-gray-200 bg-white p-5">
-		<p class="text-sm text-gray-500">Skills enrolled</p>
-		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.enrolledCount}</p>
-	</div>
-	<div class="rounded-xl border border-gray-200 bg-white p-5">
-		<p class="text-sm text-gray-500">Reviewed today</p>
-		<p class="mt-1 text-3xl font-semibold text-indigo-600">{data.stats.reviewedToday}</p>
-	</div>
-	<div class="rounded-xl border border-gray-200 bg-white p-5">
-		<p class="text-sm text-gray-500">Total reviews</p>
-		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.totalReviewed}</p>
-	</div>
-	<div class="rounded-xl border border-gray-200 bg-white p-5">
-		<p class="text-sm text-gray-500">Due now</p>
-		<p class="mt-1 text-3xl font-semibold text-gray-900">{data.stats.dueNow}</p>
-	</div>
+	<StatCard label="Skills enrolled" value={data.stats.enrolledCount} />
+	<StatCard label="Reviewed today" value={data.stats.reviewedToday} color="indigo" />
+	<StatCard label="Total reviews" value={data.stats.totalReviewed} />
+	<StatCard label="Due now" value={data.stats.dueNow} />
 </div>
 
 <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6">
